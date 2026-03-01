@@ -1,5 +1,7 @@
 package compiler.Lexer;
 
+import compiler.Lexer.Lexer.Sym;
+
 public class Symbol {
     public int sym;        // Type du symbole (constante Sym.*)
     public Object value;   // Valeur du symbole (String, Integer, Float, Boolean...)
@@ -23,7 +25,7 @@ public class Symbol {
     @Override
     public String toString() {
         String symName = getSymbolName(sym);
-        return String.format("Symbol[%s, value=%s, line=%d, col=%d]", 
+        return String.format("< %s, %s>",
                             symName, value, line, column);
     }
     
@@ -74,6 +76,13 @@ public class Symbol {
             case Lexer.Sym.SEMI: return "SEMI";
             case Lexer.Sym.COMMA: return "COMMA";
             case Lexer.Sym.DOT: return "DOT";
+            case Sym.READ_INT: return "READ_INT";
+            case Sym.READ_FLOAT: return "READ_FLOAT";
+            case Sym.READ_STRING: return "READ_STRING";
+            case Sym.PRINT_INT: return "PRINT_INT";
+            case Sym.PRINT_FLOAT: return "PRINT_FLOAT";
+            case Sym.PRINT: return "PRINT";
+            case Sym.PRINTLN: return "PRINTLN";
             default: return "UNKNOWN(" + sym + ")";
         }
     }

@@ -134,6 +134,7 @@ def Point copyPoints(Point[] p) {
                              
 def main() { 
     INT value = read_INT();
+    FLOAT value = read_FLOAT();
     println(square(value)); 
     for (INT i; 1 -> 100; i+1) { 
         while (value=/=3) { 

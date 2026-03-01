@@ -64,6 +64,19 @@ public class Lexer {
         public static final int SEMI = 41;     // ;
         public static final int COMMA = 42;    // ,
         public static final int DOT = 43;      // .
+
+
+        // Function IO
+
+        public static final int READ_INT =44;
+        public static final int READ_FLOAT=45;
+        public static final int READ_STRING =46;
+        public static final int PRINT_INT =47;
+        public static final int PRINT_FLOAT=48;
+        public static final int PRINT=49;
+        public static final int PRINTLN=50;
+
+
     }
     
     // Ensemble des mots-clés du langage
@@ -344,7 +357,30 @@ public class Lexer {
                 case "false": return new Symbol(Sym.FALSE_LIT, false, startLine, startColumn);
             }
         }
-        
+
+        // verifier si c'est une fonction IO
+        if (identifier.contains("read_INT")){
+            return new Symbol(Sym.READ_INT,identifier,startLine,startColumn);
+        }
+        if (identifier.contains("read_FLOAT")){
+            return new Symbol(Sym.READ_FLOAT,identifier,startLine,startColumn);
+        }
+        if (identifier.contains("read_STRING")){
+            return new Symbol(Sym.READ_STRING,identifier,startLine,startColumn);
+        }
+        if (identifier.contains("print_INT")){
+            return new Symbol(Sym.PRINT_INT,identifier,startLine,startColumn);
+        }
+        if (identifier.contains("print_FLOAT")){
+            return new Symbol(Sym.PRINT_FLOAT,identifier,startLine,startColumn);
+        }
+        if (identifier.contains("println")){
+            return new Symbol(Sym.PRINTLN,identifier,startLine,startColumn);
+        }
+        if (identifier.contains("print")){
+            return new Symbol(Sym.PRINT,identifier,startLine,startColumn);
+        }
+
         // type de base
         if (Character.isUpperCase(identifier.charAt(0)) || baseTypes.contains(identifier)) {
             return new Symbol(Sym.TYPE_ID, identifier, startLine, startColumn);
@@ -430,12 +466,17 @@ public class Lexer {
         return c >= '0' && c <= '9';
     }
     
-    
+
+
+
+
     //test
+
+
 
     public static void main(String[] args) {
         try {
-            Lexer lexer = new Lexer(new java.io.FileReader("./compiler/Lexer/code_example.txt"));
+            Lexer lexer = new Lexer(new java.io.FileReader("src/main/java/compiler/Lexer/code_example.txt"));
             Symbol sym;
             
             System.out.println("analyse\n");
