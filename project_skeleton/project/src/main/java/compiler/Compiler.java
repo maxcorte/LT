@@ -35,6 +35,20 @@ public class Compiler {
             }
         }
 
+        // Nouvelle option: -parser <fichier>
+        else if (args[0].equals("-parser")) {
+            try {
+                Lexer lexer = new Lexer(new java.io.FileReader(args[1]));
+                Parser parser = new Parser(lexer);
+                ProgramNode ast = parser.getAST();
+                System.out.println("AST:");
+                ast.print("");
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'analyse: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
     }
 
 }

@@ -33,3 +33,19 @@ application {
     // Define the main class for the application.
     mainClass.set("compiler.Compiler")
 }
+
+// Ajout d'une tâche JavaExec pour lancer le Parser directement.
+// Utilisation: gradlew runParser -PappArgs="-parser src/main/java/compiler/Lexer/code_example.txt"
+tasks.register<JavaExec>("runParser") {
+    group = "application"
+    description = "Run the Compiler with -parser to parse a file. Pass arguments via -PappArgs=\"-parser file\""
+    classpath = sourceSets["main"].runtimeClasspath
+    // Exécuter la classe Compiler qui gère l'option -parser
+    mainClass.set("compiler.Compiler")
+
+    // Read appArgs project property (split on whitespace) if provided
+    val appArgs = if (project.hasProperty("appArgs")) (project.property("appArgs") as String).trim() else ""
+    if (appArgs.isNotEmpty()) {
+        args = appArgs.split("\\s+".toRegex())
+    }
+}
