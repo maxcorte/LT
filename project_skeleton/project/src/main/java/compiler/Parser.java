@@ -289,7 +289,13 @@ class ForNode extends StmtNode {
     public void print(String indent) {
         printIndent(indent);
         System.out.println("For");
-        varType.print(indent + "  ");
+        if (varType != null) {
+            varType.print(indent + "  ");
+        } else {
+            printIndent(indent + "  ");
+            System.out.println("Type, <none>");
+        }
+        varId.print(indent + "  ");
         varId.print(indent + "  ");
         printIndent(indent + "  ");
         System.out.println("Range");
@@ -533,7 +539,7 @@ public class Parser {
         return parseProgram();
     }
 
-    // --------------- Program ---------------
+    // Program
 
     private ProgramNode parseProgram() {
         ProgramNode prog = new ProgramNode();
@@ -715,9 +721,19 @@ public class Parser {
     private ForNode parseFor() {
         expect(Sym.FOR);
         expect(Sym.LPAREN);
-        TypeNode t = parseType();
-        Symbol idSym = expect(Sym.ID);
-        IdentifierNode id = new IdentifierNode((String) idSym.value);
+
+        TypeNode varType = null;
+        IdentifierNode varId;
+
+        if (current().sym == Sym.TYPE_ID) {
+            varType = parseType();
+            Symbol idSym = expect(Sym.ID);
+            varId = new IdentifierNode((String) idSym.value);
+        } else {
+            Symbol idSym = expect(Sym.ID);
+            varId = new IdentifierNode((String) idSym.value);
+        }
+
         expect(Sym.SEMI);
         ExprNode start = parseExpr();
         expect(Sym.ARROW);
@@ -725,8 +741,9 @@ public class Parser {
         expect(Sym.SEMI);
         ExprNode step = parseExpr();
         expect(Sym.RPAREN);
+
         BlockNode body = parseBlock();
-        return new ForNode(t, id, start, end, step, body);
+        return new ForNode(varType, varId, start, end, step, body);
     }
 
     private ReturnNode parseReturn() {
