@@ -52,7 +52,7 @@ public class Parser {
         return parseProgram();
     }
 
-    // --------------- Program ---------------
+    // Program
 
     private ProgramNode parseProgram() {
         ProgramNode prog = new ProgramNode();
@@ -233,9 +233,22 @@ public class Parser {
     private ForNode parseFor() {
         expect(Sym.FOR);
         expect(Sym.LPAREN);
-        TypeNode t = parseType();
-        Symbol idSym = expect(Sym.ID);
-        IdentifierNode id = new IdentifierNode((String) idSym.value);
+
+        TypeNode varType = null;
+        IdentifierNode varId;
+
+        // Deux cas :
+        // 1) Type ID ;(déclaration dans le for)
+        // 2) ID ; (variable déjà déclarée)
+        if (current().sym == Sym.TYPE_ID) {
+            varType = parseType();
+            Symbol idSym = expect(Sym.ID);
+            varId = new IdentifierNode((String) idSym.value);
+        } else {
+            Symbol idSym = expect(Sym.ID);
+            varId = new IdentifierNode((String) idSym.value);
+        }
+
         expect(Sym.SEMI);
         ExprNode start = parseExpr();
         expect(Sym.ARROW);
@@ -243,9 +256,11 @@ public class Parser {
         expect(Sym.SEMI);
         ExprNode step = parseExpr();
         expect(Sym.RPAREN);
+
         BlockNode body = parseBlock();
-        return new ForNode(t, id, start, end, step, body);
+        return new ForNode(varType, varId, start, end, step, body);
     }
+
 
     private ReturnNode parseReturn() {
         expect(Sym.RETURN);
@@ -408,8 +423,8 @@ public class Parser {
             }
             case Sym.TYPE_ID:
                 // Deux cas qu’on veut supporter ici:
-                //  1) INT ARRAY[5]        -> NewArrayNode
-                //  2) Point( ... )        -> constructeur (CallNode sur VarRefNode)
+                //  1) INT ARRAY[5] -> NewArrayNode
+                //  2) Point( ... ) -> constructeur (CallNode sur VarRefNode)
                 if (lookahead(1).sym == Sym.ARRAY) {
                     String elemType = (String) c.value;
                     pos++; // TYPE_ID

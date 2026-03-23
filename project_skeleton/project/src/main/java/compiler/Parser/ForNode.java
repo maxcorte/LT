@@ -25,7 +25,9 @@ public class ForNode extends StmtNode {
   public void print(String indent) {
     printIndent(indent);
     System.out.println("For");
-    varType.print(indent + "  ");
+      if (varType != null) {
+          varType.print(indent + "  ");
+      }
     varId.print(indent + "  ");
     printIndent(indent + "  ");
     System.out.println("Range");
