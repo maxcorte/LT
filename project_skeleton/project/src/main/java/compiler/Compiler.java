@@ -6,6 +6,8 @@ package compiler;
 import compiler.Lexer.Lexer;
 import compiler.Lexer.Lexer.Sym;
 import compiler.Lexer.Symbol;
+import compiler.Parser.Parser;
+import compiler.Parser.ProgramNode;
 
 public class Compiler {
     public static void main(String[] args) {
