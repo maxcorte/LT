@@ -3,8 +3,54 @@
  */
 package compiler;
 
+import compiler.Lexer.Lexer;
+import compiler.Lexer.Lexer.Sym;
+import compiler.Lexer.Symbol;
+import compiler.Parser.Parser;
+import compiler.Parser.ProgramNode;
+
 public class Compiler {
     public static void main(String[] args) {
-        System.out.println("Hello from the compiler !");
+
+        System.out.println(args.length);
+        if (args.length < 2){
+            System.out.println("pas assez d'arguments");
+            return;
+        }
+
+        if (args[0].equals("-lexer")){
+            try {
+                Lexer lexer = new Lexer(new java.io.FileReader(args[1]));
+                Symbol sym;
+
+                System.out.println("analyse\n");
+
+                while ((sym = lexer.getNextSymbol()).sym != Sym.EOF) {
+                    System.out.println(sym);
+                }
+
+                System.out.println("\n fin");
+
+            } catch (Exception e) {
+                System.err.println("Erreur: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        // Nouvelle option: -parser <fichier>
+        else if (args[0].equals("-parser")) {
+            try {
+                Lexer lexer = new Lexer(new java.io.FileReader(args[1]));
+                Parser parser = new Parser(lexer);
+                ProgramNode ast = parser.getAST();
+                System.out.println("AST:");
+                ast.print("");
+            } catch (Exception e) {
+                System.err.println("Erreur lors de l'analyse: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
     }
+
 }
