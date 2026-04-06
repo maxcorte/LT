@@ -116,7 +116,6 @@ public class Parser {
     }
 
     // Collections
-
     private CollDeclNode parseCollDecl() {
         expect(Sym.COLL);
         Symbol nameSym = expect(Sym.TYPE_ID);
@@ -138,7 +137,6 @@ public class Parser {
     }
 
     // Fonctions
-
     private FunDefNode parseFunDef() {
         expect(Sym.DEF);
         TypeNode returnType = null;
