@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class UnaryOpNode extends ExprNode {
 
@@ -16,4 +17,7 @@ public class UnaryOpNode extends ExprNode {
     System.out.println("UnaryOp, " + op);
     expr.print(indent + "  ");
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

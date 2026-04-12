@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 // Op binaire (arithmétique, comparaison, logique)
 public class BinaryOpNode extends ExprNode {
@@ -19,4 +20,6 @@ public class BinaryOpNode extends ExprNode {
     left.print(indent + "  ");
     right.print(indent + "  ");
   }
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 // Déclaration d’un champ dans une collection
 public class FieldDeclNode extends ASTNode {
@@ -18,4 +19,7 @@ public class FieldDeclNode extends ASTNode {
     type.print(indent + "  ");
     id.print(indent + "  ");
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

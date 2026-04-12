@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class VarDeclNode extends TopLevelNode {
 
@@ -26,4 +27,6 @@ public class VarDeclNode extends TopLevelNode {
       init.print(indent + "    ");
     }
   }
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

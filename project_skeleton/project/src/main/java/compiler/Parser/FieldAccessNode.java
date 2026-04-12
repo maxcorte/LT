@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 // Accès champ : base.field
 public class FieldAccessNode extends ExprNode {
@@ -17,4 +18,7 @@ public class FieldAccessNode extends ExprNode {
     System.out.println("FieldAccess, " + field);
     base.print(indent + "  ");
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

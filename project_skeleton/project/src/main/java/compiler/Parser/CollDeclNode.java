@@ -2,6 +2,7 @@ package compiler.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import compiler.SemanticAnalysis.Visitor;
 
 // Déclaration de collection : coll Point { ... }
 public class CollDeclNode extends TopLevelNode {
@@ -21,4 +22,7 @@ public class CollDeclNode extends TopLevelNode {
       f.print(indent + "  ");
     }
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

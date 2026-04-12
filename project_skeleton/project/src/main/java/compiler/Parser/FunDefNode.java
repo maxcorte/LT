@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,4 +33,6 @@ public class FunDefNode extends TopLevelNode {
     }
     body.print(indent + "  ");
   }
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

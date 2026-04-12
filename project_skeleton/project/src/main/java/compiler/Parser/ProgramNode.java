@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,4 +17,7 @@ public class ProgramNode extends ASTNode {
       n.print(indent + "  ");
     }
   }
+
+    @Override
+    public void accept(Visitor visitor) {}
 }

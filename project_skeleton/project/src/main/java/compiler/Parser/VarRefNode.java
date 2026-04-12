@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class VarRefNode extends ExprNode {
 
@@ -13,4 +14,6 @@ public class VarRefNode extends ExprNode {
     printIndent(indent);
     System.out.println("Identifier, " + name);
   }
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

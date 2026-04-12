@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 // Création de tableau : INT ARRAY[5]
 public class NewArrayNode extends ExprNode {
@@ -17,4 +18,7 @@ public class NewArrayNode extends ExprNode {
     System.out.println("NewArray, " + elementType);
     size.print(indent + "  ");
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

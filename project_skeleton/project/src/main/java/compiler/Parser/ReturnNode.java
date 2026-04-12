@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class ReturnNode extends StmtNode {
 
@@ -16,4 +17,6 @@ public class ReturnNode extends StmtNode {
       expr.print(indent + "  ");
     }
   }
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

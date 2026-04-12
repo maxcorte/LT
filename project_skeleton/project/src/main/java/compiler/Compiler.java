@@ -8,6 +8,8 @@ import compiler.Lexer.Lexer.Sym;
 import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.ProgramNode;
+import compiler.SemanticAnalysis.SemanticAnalysis;
+import compiler.SemanticAnalysis.SemanticException;
 
 public class Compiler {
     public static void main(String[] args) {
@@ -49,6 +51,36 @@ public class Compiler {
                 System.err.println("Erreur lors de l'analyse: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+        else if (args[0].equals("-semantic")) {
+            try {
+                // 1. Lexing + Parsing
+                Lexer lexer = new Lexer(new java.io.FileReader(args[1]));
+                Parser parser = new Parser(lexer);
+                ProgramNode ast = parser.getAST();
+
+                // 2. Analyse sémantique
+                SemanticAnalysis sa = new SemanticAnalysis();
+                sa.analyze(ast);
+
+                System.out.println("Analyse semantique reussie.");
+
+            } catch (SemanticException e) {
+                // Erreur sémantique : message avec le mot-clé (TypeError, ScopeError, ...)
+                System.err.println(e.getMessage());
+                System.exit(2);
+
+            } catch (Exception e) {
+                // Erreur de lecture ou de parsing
+                System.err.println("Erreur: " + e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            }
+
+        } else {
+            System.err.println("Option inconnue: " + args[0]);
+            System.err.println("Usage: -lexer <file> | -parser <file> | -semantic <file>");
+            System.exit(1);
         }
 
     }

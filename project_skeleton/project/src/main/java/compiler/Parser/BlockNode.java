@@ -2,6 +2,7 @@ package compiler.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import compiler.SemanticAnalysis.Visitor;
 
 public class BlockNode extends StmtNode {
 
@@ -15,4 +16,7 @@ public class BlockNode extends StmtNode {
       s.print(indent + "  ");
     }
   }
+
+  @Override
+  public void accept(Visitor visitor) { visitor.visit(this); }
 }

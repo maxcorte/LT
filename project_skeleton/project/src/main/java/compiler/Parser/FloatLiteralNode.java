@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class FloatLiteralNode extends ExprNode {
 
@@ -13,4 +14,7 @@ public class FloatLiteralNode extends ExprNode {
     printIndent(indent);
     System.out.println("Float, " + value);
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

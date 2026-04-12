@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 // Déclaration locale (on réutilise VarDeclNode)
 public class VarDeclStmtNode extends StmtNode {
@@ -13,4 +14,7 @@ public class VarDeclStmtNode extends StmtNode {
   public void print(String indent) {
     decl.print(indent);
   }
+
+  @Override
+  public void accept(Visitor visitor) { visitor.visit(this); }
 }

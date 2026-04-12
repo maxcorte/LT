@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class StringLiteralNode extends ExprNode {
 
@@ -13,4 +14,7 @@ public class StringLiteralNode extends ExprNode {
     printIndent(indent);
     System.out.println("String, " + value);
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

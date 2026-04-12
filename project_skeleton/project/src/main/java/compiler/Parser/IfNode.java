@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class IfNode extends StmtNode {
 
@@ -24,4 +25,7 @@ public class IfNode extends StmtNode {
       elseBlock.print(indent + "  ");
     }
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }

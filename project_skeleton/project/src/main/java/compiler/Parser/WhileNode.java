@@ -1,4 +1,5 @@
 package compiler.Parser;
+import compiler.SemanticAnalysis.Visitor;
 
 public class WhileNode extends StmtNode {
 
@@ -17,4 +18,7 @@ public class WhileNode extends StmtNode {
     condition.print(indent + "  ");
     body.print(indent + "  ");
   }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 }
