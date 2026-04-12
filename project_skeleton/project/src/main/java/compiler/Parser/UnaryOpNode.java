@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class UnaryOpNode extends ExprNode {
 
   public final String op; // "-", "not"
@@ -15,5 +17,10 @@ public class UnaryOpNode extends ExprNode {
     printIndent(indent);
     System.out.println("UnaryOp, " + op);
     expr.print(indent + "  ");
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

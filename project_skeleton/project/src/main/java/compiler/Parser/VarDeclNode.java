@@ -1,5 +1,8 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Type;
+import compiler.SemanticAnalysis.Visitor;
+
 public class VarDeclNode extends TopLevelNode {
 
   public final boolean isFinal;
@@ -26,4 +29,13 @@ public class VarDeclNode extends TopLevelNode {
       init.print(indent + "    ");
     }
   }
+
+  @Override
+  public void accept(Visitor visitor) {
+
+  }
+
+
+
+
 }

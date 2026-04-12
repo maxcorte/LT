@@ -32,7 +32,7 @@ def main() {
     INT value = read_INT();
     println(square(value));
     INT i;
-    for (i; 1 -> 100; i+1) {
+    for (i; 1 -> 100.0; i+1) {
         while (value=/=3) {
             if (i > 10){
                 value = value - 1;

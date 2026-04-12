@@ -8,6 +8,7 @@ import compiler.Lexer.Lexer.Sym;
 import compiler.Lexer.Symbol;
 import compiler.Parser.Parser;
 import compiler.Parser.ProgramNode;
+import compiler.SemanticAnalysis.SemanticAnalysis;
 
 public class Compiler {
     public static void main(String[] args) {
@@ -17,6 +18,8 @@ public class Compiler {
             System.out.println("pas assez d'arguments");
             return;
         }
+
+
 
         if (args[0].equals("-lexer")){
             try {
@@ -49,6 +52,20 @@ public class Compiler {
                 System.err.println("Erreur lors de l'analyse: " + e.getMessage());
                 e.printStackTrace();
             }
+        } else if (args[0].equals("-sem")) {
+            try {
+                Lexer lexer = new Lexer(new java.io.FileReader(args[1]));
+                Parser parser = new Parser(lexer);
+                ProgramNode ast = parser.getAST();
+                System.out.println("Analysis");
+                SemanticAnalysis sem = new SemanticAnalysis(ast);
+                sem.analyze(ast);
+                System.out.println("analysis ok");
+            }catch (Exception e) {
+                System.err.println("Erreur lors de l'analyse: " + e.getMessage());
+                e.printStackTrace();
+            }
+
         }
 
     }

@@ -1,5 +1,6 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
 import java.util.List;
 
 // Appel de fonction / constructeur : f(...), Point(...), read_INT()
@@ -21,5 +22,10 @@ public class CallNode extends ExprNode {
     for (ExprNode a : args) {
       a.print(indent + "  ");
     }
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class ExprStmtNode extends StmtNode {
 
   public final ExprNode expr;
@@ -13,5 +15,10 @@ public class ExprStmtNode extends StmtNode {
     printIndent(indent);
     System.out.println("ExprStmt");
     expr.print(indent + "  ");
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

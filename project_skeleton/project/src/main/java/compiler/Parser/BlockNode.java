@@ -1,5 +1,6 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,4 +16,10 @@ public class BlockNode extends StmtNode {
       s.print(indent + "  ");
     }
   }
+
+  @Override
+  public void accept(Visitor visitor) {
+
+  }
+
 }

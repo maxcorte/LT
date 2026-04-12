@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 // Accès tableau : base[index]
 public class ArrayAccessNode extends ExprNode {
 
@@ -17,5 +19,10 @@ public class ArrayAccessNode extends ExprNode {
     System.out.println("ArrayAccess");
     base.print(indent + "  ");
     index.print(indent + "  ");
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

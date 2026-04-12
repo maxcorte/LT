@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class IfNode extends StmtNode {
 
   public final ExprNode condition;
@@ -23,5 +25,10 @@ public class IfNode extends StmtNode {
       System.out.println("Else");
       elseBlock.print(indent + "  ");
     }
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

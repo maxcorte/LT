@@ -1,5 +1,6 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,5 +16,10 @@ public class ProgramNode extends ASTNode {
     for (ASTNode n : topLevels) {
       n.print(indent + "  ");
     }
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+    visitor.visit(this);
   }
 }

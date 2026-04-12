@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class TypeNode extends ASTNode {
 
   public final String name;   // "INT", "FLOAT", "Point", ...
@@ -15,4 +17,10 @@ public class TypeNode extends ASTNode {
     printIndent(indent);
     System.out.println("Type, " + name + (isArray ? "[]" : ""));
   }
+
+  @Override
+  public void accept(Visitor visitor) {
+
+  }
+
 }

@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class ParamNode extends ASTNode {
 
   public final TypeNode type;
@@ -16,5 +18,10 @@ public class ParamNode extends ASTNode {
     System.out.println("Param");
     type.print(indent + "  ");
     id.print(indent + "  ");
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

@@ -1,5 +1,6 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,5 +21,10 @@ public class CollDeclNode extends TopLevelNode {
     for (FieldDeclNode f : fields) {
       f.print(indent + "  ");
     }
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

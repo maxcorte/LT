@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 // for (INT i; 1 -> 100; i + 1) { ... }
 public class ForNode extends StmtNode {
 
@@ -37,5 +39,10 @@ public class ForNode extends StmtNode {
     System.out.println("Step");
     step.print(indent + "    ");
     body.print(indent + "  ");
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

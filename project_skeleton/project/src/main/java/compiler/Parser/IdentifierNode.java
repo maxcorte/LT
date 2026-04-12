@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class IdentifierNode extends ASTNode {
 
   public final String name;
@@ -12,5 +14,10 @@ public class IdentifierNode extends ASTNode {
   public void print(String indent) {
     printIndent(indent);
     System.out.println("Identifier, " + name);
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }

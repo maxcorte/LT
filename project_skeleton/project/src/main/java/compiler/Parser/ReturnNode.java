@@ -1,5 +1,7 @@
 package compiler.Parser;
 
+import compiler.SemanticAnalysis.Visitor;
+
 public class ReturnNode extends StmtNode {
 
   public final ExprNode expr; // peut être null
@@ -15,5 +17,10 @@ public class ReturnNode extends StmtNode {
     if (expr != null) {
       expr.print(indent + "  ");
     }
+  }
+
+  @Override
+  public void accept(Visitor visitor) {
+
   }
 }
