@@ -4,6 +4,7 @@ import compiler.Lexer.Lexer;
 import compiler.Lexer.Lexer.Sym;
 import compiler.Lexer.Symbol;
 
+import compiler.SemanticAnalysis.SemanticException;
 import java.util.ArrayList;
 import java.util.List;
 public class Parser {
@@ -118,7 +119,16 @@ public class Parser {
     // Collections
     private CollDeclNode parseCollDecl() {
         expect(Sym.COLL);
-        Symbol nameSym = expect(Sym.TYPE_ID);
+
+        Symbol nameSym = null;
+        try {
+            nameSym = expect(Sym.TYPE_ID);
+        }catch(Exception e){
+            throw new SemanticException(
+                "CollectionError: collection name '" + nameSym +
+                    "' must start with an uppercase letter");
+        }
+
         CollDeclNode coll = new CollDeclNode((String) nameSym.value);
         expect(Sym.LBRACE);
         while (current().sym != Sym.RBRACE) {

@@ -123,6 +123,17 @@ public class TestSemanticAnalysis {
     }
 
     @Test
+    public void testCollectionError_UppercaseName() {
+        String src =
+            "coll point {\n" +
+                "  INT x;\n" +
+                "  INT y;\n" +
+                "}\n";
+        SemanticException e = expectError(src);
+        assertKeyword(e, "CollectionError");
+    }
+
+    @Test
     public void testCollectionError_noError_valid() {
         String src =
                 "coll Point {\n" +

@@ -269,6 +269,12 @@ public class SemanticAnalysis implements Visitor {
             case "+": case "-": case "*": case "/": case "%": {
                 String l = inferType(node.left);
                 String r = inferType(node.right);
+
+                if ("STRING".equals(l) && "STRING".equals(r)){
+                    currentType = "STRING";
+                    break;
+                }
+
                 if (!isNumeric(l) || !isNumeric(r)) {
                     throw new SemanticException(
                             "OperatorError: operator '" + node.op +
