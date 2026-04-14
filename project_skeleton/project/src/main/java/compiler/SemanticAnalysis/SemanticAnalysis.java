@@ -10,6 +10,7 @@ public class SemanticAnalysis implements Visitor {
     private SymbolTable           table;
     private String                currentType;
     private SymbolTable.FunSymbol currentFunction;
+    private boolean finalDone = false;
 
     // entree public
 
@@ -62,7 +63,6 @@ public class SemanticAnalysis implements Visitor {
     private void registerFunction(FunDefNode node) {
         String  retType  = node.returnType != null ? node.returnType.name  : null;
         boolean retIsArr = node.returnType != null && node.returnType.isArray;
-
         List<SymbolTable.VarSymbol> params = new ArrayList<>();
         for (ParamNode param : node.params) {
             params.add(new SymbolTable.VarSymbol(
@@ -70,6 +70,7 @@ public class SemanticAnalysis implements Visitor {
         }
         table.declareFunction(
                 new SymbolTable.FunSymbol(node.name, retType, retIsArr, params, false));
+        finalDone = true;
     }
 
     private void registerCollection(CollDeclNode node) {
@@ -79,6 +80,7 @@ public class SemanticAnalysis implements Visitor {
                     new SymbolTable.VarSymbol(f.id.name, f.type.name, f.type.isArray, false));
         }
         table.declareCollection(coll);
+        finalDone = true;
     }
 
     // visitor : declarations top-level
@@ -131,7 +133,15 @@ public class SemanticAnalysis implements Visitor {
                 node.id.name, declaredType, isArray, node.isFinal));
     }
 
-    @Override public void visit(VarDeclStmtNode node) { node.decl.accept(this); }
+    @Override public void visit(VarDeclStmtNode node) {
+        if (this.finalDone && node.decl.isFinal){
+            throw new SemanticException(
+                "TypeError: final variable '" + node.decl.id.name + "' must be initialized at the top of the file");
+        }
+
+        node.decl.accept(this);
+
+    }
 
     @Override
     public void visit(ParamNode node) {

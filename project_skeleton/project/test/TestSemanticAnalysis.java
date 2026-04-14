@@ -80,6 +80,21 @@ public class TestSemanticAnalysis {
     }
 
     @Test
+    public void testTypeErrorFinalNotTop() {
+        // INT + BOOL -> OperatorError
+        String src =
+            "def main() {\n" +
+                "  INT value = 1;\n" +
+                "  BOOL value2 = true;\n" +
+                "  final INT value3 = 3 ;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+
+    @Test
     public void testTypeError_noError_intToFloat() {
         // INT -> FLOAT : promotion implicite autorisee
         String src =
@@ -133,6 +148,8 @@ public class TestSemanticAnalysis {
         assertKeyword(e, "CollectionError");
     }
 
+
+
     @Test
     public void testCollectionError_noError_valid() {
         String src =
@@ -162,6 +179,7 @@ public class TestSemanticAnalysis {
         SemanticException e = expectError(src);
         assertKeyword(e, "OperatorError");
     }
+
 
     @Test
     public void testOperatorError_mulStringAndInt() {
