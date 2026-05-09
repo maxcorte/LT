@@ -27,6 +27,11 @@ dependencies {
 
     // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
+
+    // ASM library for JVM bytecode generation (Phase 4)
+    implementation("org.ow2.asm:asm:9.7.1")
+    implementation("org.ow2.asm:asm-util:9.7.1")     // utile pour debug (Textifier, CheckClassAdapter)
+    implementation("org.ow2.asm:asm-commons:9.7.1")  // utile si on veut utiliser GeneratorAdapter
 }
 
 application {

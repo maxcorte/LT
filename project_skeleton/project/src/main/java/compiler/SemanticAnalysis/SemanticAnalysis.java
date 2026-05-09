@@ -14,6 +14,10 @@ public class SemanticAnalysis implements Visitor {
 
     // entree public
 
+    public SymbolTable getSymbolTable() {
+        return table;
+    }
+
     public void analyze(ProgramNode root) {
         table = new SymbolTable();
         registerBuiltins();
@@ -504,6 +508,7 @@ public class SemanticAnalysis implements Visitor {
 
     private String inferType(ExprNode expr) {
         expr.accept(this);
+        expr.inferredType = currentType;
         return currentType;
     }
 

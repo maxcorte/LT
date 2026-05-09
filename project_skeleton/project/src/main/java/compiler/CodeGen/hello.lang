@@ -1,0 +1,155 @@
+final INT    maxValue = 10;
+final FLOAT  pi       = 3.14;
+final STRING greeting = "Hello";
+final BOOL   enabled  = true;
+INT counter = 0;
+
+# Collections
+coll Point {
+    INT x;
+    INT y;
+}
+coll Person {
+    STRING name;
+    Point  location;
+    INT[]  history;
+}
+
+# Functions
+def INT square(INT v) {
+    return v * v;
+}
+
+def INT fact(INT n) {
+    if (n <= 1) { return 1; }
+    return n * fact(n - 1);
+}
+
+def INT fib(INT n) {
+    if (n < 2) { return n; }
+    return fib(n - 1) + fib(n - 2);
+}
+
+def BOOL isEven(INT n) {
+    if (n == 0) { return true; }
+    return isOdd(n - 1);
+}
+
+def BOOL isOdd(INT n) {
+    if (n == 0) { return false; }
+    return isEven(n - 1);
+}
+
+def add(INT v) {
+    counter = counter + v;
+}
+
+def FLOAT half(FLOAT x) {
+    return x / 2;
+}
+
+# Main
+def main() {
+
+    println("[1] globals");
+    println(maxValue);                  # 10
+    println(pi);                        # 3.14
+    println(greeting);                  # Hello
+    println(enabled);                   # true
+
+    println("[2] int arithmetic");
+    INT a = 17;
+    INT b = 5;
+    println(a + b);                     # 22
+    println(a - b);                     # 12
+    println(a * b);                     # 85
+    println(a / b);                     # 3
+    println(a % b);                     # 2
+
+    println("[3] float coercion");
+    println(half(7));                   # 3.5
+    println(pi * 2);                    # 6.28
+
+    println("[4] string concat");
+    STRING s = "Hello";
+    s = s + " world";
+    println(s);                         # Hello world
+
+    println("[5] comparisons");
+    println(a > b);                     # true
+    println(a == 17);                   # true
+    println(a =/= b);                   # true
+    println(greeting == "Hello");       # true
+
+    println("[6] booleans");
+    println(a > 0 && b > 0);            # true
+    println(a < 0 || b > 0);            # true
+    println(not (a == b));              # true
+
+    println("[7] if/else");
+    if (a > b) {
+        println("greater");             # greater
+    } else {
+        println("smaller");
+    }
+
+    println("[8] while");
+    INT i = 0;
+    while (i < 3) {
+        println(i);                     # 0, 1, 2
+        i = i + 1;
+    }
+
+    println("[9] for");
+    INT sum = 0;
+    for (INT j; 1 -> 5; j+1) {
+        sum = sum + j;
+    }
+    println(sum);                       # 15
+
+    println("[10] arrays");
+    INT[] arr = INT ARRAY [5];
+    for (INT k; 0 -> 4; k+1) {
+        arr[k] = k * k;
+    }
+    println(arr[0]);                    # 0
+    println(arr[2]);                    # 4
+    println(arr[4]);                    # 16
+    arr[2] = arr[2] + 100;
+    println(arr[2]);                    # 104
+
+    println("[11] simple coll");
+    Point p = Point(3, 7);
+    println(p.x);                       # 3
+    println(p.y);                       # 7
+    p.x = 42;
+    p.y = p.y * 2;
+    println(p.x);                       # 42
+    println(p.y);                       # 14
+
+    println("[12] nested coll");
+    Person alice = Person("Alice", Point(10, 20), INT ARRAY [3]);
+    println(alice.name);                # Alice
+    println(alice.location.x);          # 10
+    alice.history[0] = 100;
+    alice.history[1] = 200;
+    alice.history[2] = alice.history[0] + alice.history[1];
+    println(alice.history[2]);          # 300
+
+    println("[13] functions");
+    println(square(5));                 # 25
+    println(fact(5));                   # 120
+    println(fact(10));                  # 3628800
+    println(fib(10));                   # 55
+
+    println("[14] mutual recursion");
+    println(isEven(4));                 # true
+    println(isOdd(7));                  # true
+
+    println("[15] global modif");
+    add(5);
+    add(10);
+    println(counter);                   # 15
+    counter = counter + 100;
+    println(counter);                   # 115
+}

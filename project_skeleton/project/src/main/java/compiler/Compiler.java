@@ -10,6 +10,9 @@ import compiler.Parser.Parser;
 import compiler.Parser.ProgramNode;
 import compiler.SemanticAnalysis.SemanticAnalysis;
 import compiler.SemanticAnalysis.SemanticException;
+import compiler.CodeGen.CodeGenerator;
+
+import java.io.File;
 
 public class Compiler {
     public static void main(String[] args) {
@@ -59,14 +62,14 @@ public class Compiler {
                 Parser parser = new Parser(lexer);
                 ProgramNode ast = parser.getAST();
 
-                // 2. Analyse sémantique
+                // 2. Analyse semantique
                 SemanticAnalysis sa = new SemanticAnalysis();
                 sa.analyze(ast);
 
                 System.out.println("Analyse semantique reussie.");
 
             } catch (SemanticException e) {
-                // Erreur sémantique : message avec le mot-clé (TypeError, ScopeError, ...)
+                // Erreur semantique : message avec le mot-cle (TypeError, ScopeError, ...)
                 System.err.println(e.getMessage());
                 System.exit(2);
 
@@ -77,9 +80,63 @@ public class Compiler {
                 System.exit(1);
             }
 
-        } else {
+        }
+        // Nouvelle option: -codegen <source> [-o <target>]
+        else if (args[0].equals("-codegen")) {
+            try {
+                String sourceFile = args[1];
+
+                String outputArg = null;
+                for (int i = 2; i < args.length - 1; i++) {
+                    if ("-o".equals(args[i])) {
+                        outputArg = args[i + 1];
+                        break;
+                    }
+                }
+
+                String className;
+                String outputDir;
+                if (outputArg != null) {
+                    File out = new File(outputArg);
+                    String filename = out.getName();
+                    int dot = filename.lastIndexOf('.');
+                    className = (dot < 0) ? filename : filename.substring(0, dot);
+                    String parent = out.getParent();
+                    outputDir = (parent == null) ? "." : parent;
+                } else {
+                    className = "test";
+                    outputDir = ".";
+                }
+
+                // 1. Lexing + Parsing
+                Lexer lexer = new Lexer(new java.io.FileReader(sourceFile));
+                Parser parser = new Parser(lexer);
+                ProgramNode ast = parser.getAST();
+
+                // 2. Analyse semantique (pour avoir la SymbolTable + types annotes)
+                SemanticAnalysis sa = new SemanticAnalysis();
+                sa.analyze(ast);
+
+                // 3. Generation de code
+                CodeGenerator gen = new CodeGenerator(
+                        sa.getSymbolTable(), className, outputDir);
+                gen.generate(ast);
+
+                System.out.println("[ok] " + className + ".class generated in " + outputDir);
+
+            } catch (SemanticException e) {
+                System.err.println(e.getMessage());
+                System.exit(2);
+
+            } catch (Exception e) {
+                System.err.println("Erreur: " + e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+        else {
             System.err.println("Option inconnue: " + args[0]);
-            System.err.println("Usage: -lexer <file> | -parser <file> | -semantic <file>");
+            System.err.println("Usage: -lexer <file> | -parser <file> | -semantic <file> | -codegen <file> [-o <target>]");
             System.exit(1);
         }
 
