@@ -16,38 +16,37 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Phase 4: JVM bytecode generation.
+ *
+ * Public entry point that holds all shared state (current ClassWriter,
+ * MethodVisitor, scope, globals, functions, collections, ...) and
+ * implements the Visitor interface.
+ *
+ * Each visit(...) method is short: it either inspects the node enough to
+ * dispatch, or delegates to one of the helper classes (ExpressionEmitter,
+ * BooleanEmitter, MethodGenerator, ClassGenerator).
+ *
+ * Helpers are package-private and access the state via this object's
+ * package-private fields. There is intentionally no getter/setter
+ * boilerplate.
+ */
 public class CodeGenerator implements Visitor {
 
-
-    // Package-shared constants
 
     static final String SCANNER_FIELD = "__scanner";
     static final String SCANNER_DESC  = "Ljava/util/Scanner;";
 
 
-    // Configuration
-
     final SymbolTable symbolTable;
     final String      mainClassName;
     final String      outputDir;
 
-
-    // ASM state during generation
-
-
     ClassWriter   currentClassWriter;
     MethodVisitor mv;
 
-
-    // Local scope and current function context
-
-
     final Scope scope = new Scope();
     Signatures.FunSig currentFunction;
-
-
-    // Globals collected before generation
-
 
     final Map<String, Signatures.FunSig>     functions   = new HashMap<>();
     final Map<String, Signatures.CollSig>    collections = new HashMap<>();
@@ -55,18 +54,10 @@ public class CodeGenerator implements Visitor {
     final List<VarDeclNode>                  globalDecls = new ArrayList<>();
     boolean usesScanner;
 
-
-    // Helper instances
-
-
     final ClassGenerator    classGen;
     final MethodGenerator   methodGen;
     final ExpressionEmitter exprEmit;
     final BooleanEmitter    boolEmit;
-
-
-    // Public API
-
 
     public CodeGenerator(SymbolTable symbolTable, String mainClassName, String outputDir) {
         this.symbolTable   = symbolTable;
@@ -103,8 +94,6 @@ public class CodeGenerator implements Visitor {
         classGen.generateMainClass(program);
     }
 
-    // Pre-pass helpers
-
     private void registerCollection(CollDeclNode coll) {
         List<String> fieldNames = new ArrayList<>();
         List<String> fieldTypes = new ArrayList<>();
@@ -127,7 +116,6 @@ public class CodeGenerator implements Visitor {
         globalDecls.add(node);
     }
 
-    // Walks the AST looking for any call whose name starts with "read_"
     private boolean containsReadCall(ASTNode node) {
         if (node == null) return false;
         if (node instanceof ProgramNode) {
@@ -184,9 +172,6 @@ public class CodeGenerator implements Visitor {
         if (node instanceof NewArrayNode)    return containsReadCall(((NewArrayNode) node).size);
         return false;
     }
-
-
-    // Visitor: statements
 
     @Override
     public void visit(BlockNode node) {
@@ -283,7 +268,7 @@ public class CodeGenerator implements Visitor {
                 if (loopVarGlobal == null) {
                     throw new RuntimeException(
                             "CodeGen internal: for-loop variable '"
-                            + loopVarName + "' not in scope");
+                                    + loopVarName + "' not in scope");
                 }
                 loopVarType = loopVarGlobal.type;
             }
@@ -321,10 +306,11 @@ public class CodeGenerator implements Visitor {
             mv.visitInsn(Opcodes.I2F);
         }
         if (varIsFloat) {
+            // Exclusive upper bound: exit when i >= end
             mv.visitInsn(Opcodes.FCMPL);
-            mv.visitJumpInsn(Opcodes.IFGT, endLabel);
+            mv.visitJumpInsn(Opcodes.IFGE, endLabel);
         } else {
-            mv.visitJumpInsn(Opcodes.IF_ICMPGT, endLabel);
+            mv.visitJumpInsn(Opcodes.IF_ICMPGE, endLabel);
         }
 
         node.body.accept(this);
@@ -372,8 +358,6 @@ public class CodeGenerator implements Visitor {
         else if (TypeUtils.isString(rt) || TypeUtils.isReference(rt))      mv.visitInsn(Opcodes.ARETURN);
         else                                                               mv.visitInsn(Opcodes.RETURN);
     }
-
-    // Visitor: expressions (literals + delegations)
 
     @Override public void visit(IntLiteralNode node)    { exprEmit.emitIntConstant(node.value); }
 
@@ -456,8 +440,6 @@ public class CodeGenerator implements Visitor {
         }
         throw new RuntimeException("CodeGen internal: unknown call '" + name + "'");
     }
-
-    //  Visitor: stubs (dispatched at higher level or unused)
 
     @Override
     public void visit(TopLevelNode node) {

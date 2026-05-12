@@ -1,0 +1,7 @@
+def main() {
+    for (INT j; 0 -> 3; j+1) {
+        print(j);
+        print(" ");
+    }
+    println("");
+}
