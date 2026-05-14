@@ -83,6 +83,13 @@ public class Symbol {
             case Sym.PRINT_FLOAT: return "PRINT_FLOAT";
             case Sym.PRINT: return "PRINT";
             case Sym.PRINTLN: return "PRINTLN";
+            case Sym.PLUS_EQ:return "PLUS_EQ";
+            case Sym.MINUS_EQ:return "MINUS_EQ";
+            case Sym.MULTI_EQ: return "MULTI_EQ";
+            case Sym.SLASH_EQ: return "SLASH_EQ";
+            case Sym.PLUS_ONE: return "PLUS_ONE";
+            case Sym.MINUS_ONE:return "MINUS_ONE";
+
             default: return "UNKNOWN(" + sym + ")";
         }
     }

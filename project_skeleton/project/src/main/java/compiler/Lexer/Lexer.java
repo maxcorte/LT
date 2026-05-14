@@ -76,6 +76,13 @@ public class Lexer {
         public static final int PRINT=49;
         public static final int PRINTLN=50;
 
+        //
+        public static final int PLUS_EQ = 51; // +=
+        public static final int MINUS_EQ =52; // -=
+        public static final int MULTI_EQ =53; // *=
+        public static final int SLASH_EQ = 54; // /=
+        public static final int PLUS_ONE = 55; // ++
+        public static final int MINUS_ONE = 56; // --
 
     }
     
@@ -191,14 +198,30 @@ public class Lexer {
             
             case '+':
                 nextChar();
+                if (currentChar == '='){
+                    nextChar();
+                    return new Symbol(Sym.PLUS_EQ,"+=",startLine,startColumn);
+                }
+                if (currentChar == '+'){
+                    nextChar();
+                    return new Symbol(Sym.PLUS_ONE,"++",startLine,startColumn);
+                }
                 return new Symbol(Sym.PLUS, "+", startLine, startColumn);
             
             case '*':
                 nextChar();
+                if (currentChar == '='){
+                    nextChar();
+                    return new Symbol(Sym.MULTI_EQ,"*=",startLine,startColumn);
+                }
                 return new Symbol(Sym.STAR, "*", startLine, startColumn);
             
             case '/':
                 nextChar();
+                if (currentChar == '='){
+                    nextChar();
+                    return new Symbol(Sym.SLASH_EQ,"/=",startLine,startColumn);
+                }
                 return new Symbol(Sym.SLASH, "/", startLine, startColumn);
             
             case '%':
@@ -259,8 +282,17 @@ public class Lexer {
                     nextChar();
                     return new Symbol(Sym.ARROW, "->", startLine, startColumn);
                 }
+                if (currentChar == '='){
+                    nextChar();
+                    return new Symbol(Sym.MINUS_EQ,"-=",startLine,startColumn);
+                }
+                if (currentChar == '-'){
+                    nextChar();
+                    return new Symbol(Sym.MINUS_ONE,"--",startLine,startColumn);
+                }
                 return new Symbol(Sym.MINUS, "-", startLine, startColumn);
-            
+
+
             default:
                 throw new RuntimeException("Lexer error: unexpected character '" + 
                                          (char)currentChar + "' at line " + line + ", column " + column);

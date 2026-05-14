@@ -14,7 +14,7 @@ import java.io.File;
 public class Compiler {
     public static void main(String[] args) {
 
-        if (args.length < 1) {
+         if (args.length < 1) {
             System.err.println("Usage:");
             System.err.println("  <source.lang> [-o <target.class>]    (code generation, default)");
             System.err.println("  -lexer    <source.lang>              (tokens only)");

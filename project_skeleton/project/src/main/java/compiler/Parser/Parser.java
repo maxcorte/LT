@@ -42,7 +42,7 @@ public class Parser {
         Symbol c = current();
         if (c.sym != sym) {
             throw new RuntimeException("Parse error at line " + c.line +
-                    ", column " + c.column + ": expected " + sym + " but found " + c.sym);
+                ", column " + c.column + ": expected " + sym + " but found " + c.sym);
         }
         pos++;
         return c;
@@ -295,6 +295,27 @@ public class Parser {
             Symbol op = current(); pos++;
             ExprNode right = parseAssign(); // right-associatif
             return new BinaryOpNode((String)op.value, left, right);
+        }else if (current().sym == Sym.PLUS_EQ) {
+            pos++;
+            ExprNode right = parseAssign();
+            // x+=y  --> x = x + y
+            return new BinaryOpNode("=",left,new BinaryOpNode("+",left,right));
+        }else if (current().sym == Sym.MINUS_EQ) {
+            pos++;
+            ExprNode right = parseAssign();
+            // x-=y  --> x = x - y
+            return new BinaryOpNode("=",left,new BinaryOpNode("-",left,right));
+        } else if (current().sym == Sym.MULTI_EQ) {
+            pos++;
+            ExprNode right = parseAssign();
+            // x*=y  --> x = x * y
+            return new BinaryOpNode("=",left,new BinaryOpNode("*",left,right));
+
+        }else if (current().sym == Sym.SLASH_EQ) {
+            pos++;
+            ExprNode right = parseAssign();
+            // x/=y  --> x = x / y
+            return new BinaryOpNode("=",left,new BinaryOpNode("*",left,right));
         }
         return left;
     }
@@ -332,7 +353,7 @@ public class Parser {
     private ExprNode parseRel() {
         ExprNode left = parseAdd();
         while (current().sym == Sym.LT || current().sym == Sym.LE
-                || current().sym == Sym.GT || current().sym == Sym.GE) {
+            || current().sym == Sym.GT || current().sym == Sym.GE) {
             Symbol op = current(); pos++;
             ExprNode right = parseAdd();
             left = new BinaryOpNode((String) op.value, left, right);
@@ -353,7 +374,7 @@ public class Parser {
     private ExprNode parseMul() {
         ExprNode left = parseUnary();
         while (current().sym == Sym.STAR || current().sym == Sym.SLASH
-                || current().sym == Sym.PERCENT) {
+            || current().sym == Sym.PERCENT) {
             Symbol op = current(); pos++;
             ExprNode right = parseUnary();
             left = new BinaryOpNode((String) op.value, left, right);
@@ -365,7 +386,16 @@ public class Parser {
         if (current().sym == Sym.MINUS || current().sym == Sym.NOT) {
             Symbol op = current(); pos++;
             ExprNode expr = parseUnary();
+            System.out.println((String) op.value+"aaaaaaaaa");
             return new UnaryOpNode((String) op.value, expr);
+        } else if (current().sym == Sym.PLUS_ONE) {
+            System.out.println("POSTFIX TOKEN: " + current());            pos++;
+            ExprNode expr = parseUnary();
+            return new UnaryOpNode("++",expr);
+        } else if (current().sym == Sym.MINUS_ONE) {
+            pos++;
+            ExprNode expr = parseUnary();
+            return new UnaryOpNode("--",expr);
         }
         return parsePostfix();
     }
@@ -392,6 +422,10 @@ public class Parser {
                 }
                 expect(Sym.RPAREN);
                 base = new CallNode(base, args);
+            } else if (match(Sym.PLUS_ONE)) {
+                base = new BinaryOpNode("+",base,new IntLiteralNode(1));
+            }else if (match(Sym.MINUS_ONE)) {
+                base = new BinaryOpNode("-",base,new IntLiteralNode(1));
             } else {
                 loop = false;
             }
@@ -456,3 +490,4 @@ public class Parser {
         }
     }
 }
+
