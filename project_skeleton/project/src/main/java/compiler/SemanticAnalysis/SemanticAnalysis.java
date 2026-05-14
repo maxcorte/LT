@@ -4,6 +4,7 @@ import compiler.Parser.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SemanticAnalysis implements Visitor {
 
@@ -58,9 +59,9 @@ public class SemanticAnalysis implements Visitor {
     }
 
     private void builtin(String name, String ret, boolean retArr,
-                         List<SymbolTable.VarSymbol> params) {
+        List<SymbolTable.VarSymbol> params) {
         table.declareFunction(
-                new SymbolTable.FunSymbol(name, ret, retArr, params, true));
+            new SymbolTable.FunSymbol(name, ret, retArr, params, true));
     }
 
 
@@ -70,10 +71,10 @@ public class SemanticAnalysis implements Visitor {
         List<SymbolTable.VarSymbol> params = new ArrayList<>();
         for (ParamNode param : node.params) {
             params.add(new SymbolTable.VarSymbol(
-                    param.id.name, param.type.name, param.type.isArray, false));
+                param.id.name, param.type.name, param.type.isArray, false));
         }
         table.declareFunction(
-                new SymbolTable.FunSymbol(node.name, retType, retIsArr, params, false));
+            new SymbolTable.FunSymbol(node.name, retType, retIsArr, params, false));
         finalDone = true;
     }
 
@@ -81,7 +82,7 @@ public class SemanticAnalysis implements Visitor {
         SymbolTable.CollSymbol coll = new SymbolTable.CollSymbol(node.name);
         for (FieldDeclNode f : node.fields) {
             coll.fields.put(f.id.name,
-                    new SymbolTable.VarSymbol(f.id.name, f.type.name, f.type.isArray, false));
+                new SymbolTable.VarSymbol(f.id.name, f.type.name, f.type.isArray, false));
         }
         table.declareCollection(coll);
         finalDone = true;
@@ -120,21 +121,21 @@ public class SemanticAnalysis implements Visitor {
 
         if (!isPrimitive(declaredType) && !table.isCollection(declaredType)) {
             throw new SemanticException(
-                    "TypeError: unknown type '" + declaredType +
-                            "' for variable '" + node.id.name + "'");
+                "TypeError: unknown type '" + declaredType +
+                    "' for variable '" + node.id.name + "'");
         }
 
         if (node.init != null) {
             String initType = inferType(node.init);
             checkTypeError(declaredType, isArray, initType,
-                    "variable '" + node.id.name + "'");
+                "variable '" + node.id.name + "'");
         } else if (node.isFinal) {
             throw new SemanticException(
-                    "TypeError: final variable '" + node.id.name + "' must be initialized");
+                "TypeError: final variable '" + node.id.name + "' must be initialized");
         }
 
         table.declareVar(new SymbolTable.VarSymbol(
-                node.id.name, declaredType, isArray, node.isFinal));
+            node.id.name, declaredType, isArray, node.isFinal));
     }
 
     @Override public void visit(VarDeclStmtNode node) {
@@ -151,19 +152,19 @@ public class SemanticAnalysis implements Visitor {
     public void visit(ParamNode node) {
         if (!isPrimitive(node.type.name) && !table.isCollection(node.type.name)) {
             throw new SemanticException(
-                    "TypeError: unknown type '" + node.type.name +
-                            "' for parameter '" + node.id.name + "'");
+                "TypeError: unknown type '" + node.type.name +
+                    "' for parameter '" + node.id.name + "'");
         }
         table.declareVar(new SymbolTable.VarSymbol(
-                node.id.name, node.type.name, node.type.isArray, false));
+            node.id.name, node.type.name, node.type.isArray, false));
     }
 
     @Override
     public void visit(FieldDeclNode node) {
         if (!isPrimitive(node.type.name) && !table.isCollection(node.type.name)) {
             throw new SemanticException(
-                    "TypeError: unknown type '" + node.type.name +
-                            "' for field '" + node.id.name + "'");
+                "TypeError: unknown type '" + node.type.name +
+                    "' for field '" + node.id.name + "'");
         }
     }
 
@@ -183,7 +184,7 @@ public class SemanticAnalysis implements Visitor {
         String condType = inferType(node.condition);
         if (!"BOOL".equals(condType)) {
             throw new SemanticException(
-                    "MissingConditionError: if condition must be BOOL, got '" + condType + "'");
+                "MissingConditionError: if condition must be BOOL, got '" + condType + "'");
         }
         node.thenBlock.accept(this);
         if (node.elseBlock != null) node.elseBlock.accept(this);
@@ -194,9 +195,63 @@ public class SemanticAnalysis implements Visitor {
         String condType = inferType(node.condition);
         if (!"BOOL".equals(condType)) {
             throw new SemanticException(
-                    "MissingConditionError: while condition must be BOOL, got '" + condType + "'");
+                "MissingConditionError: while condition must be BOOL, got '" + condType + "'");
         }
         node.body.accept(this);
+    }
+
+    @Override
+    public void visit(UnaryPlusOneNode node) {
+
+        if (!(node.exprNode instanceof VarRefNode )){
+            throw new SemanticException("TypeError: cannot ++ to a non variable");
+        }
+        VarRefNode nodeExpr = (VarRefNode) node.exprNode;
+        SymbolTable.VarSymbol v = table.lookupVar(nodeExpr.name);
+
+        if (v == null) {
+            throw new SemanticException(
+                "ScopeError: undefined variable '" + nodeExpr.name + "'");
+        }
+
+        if (!"INT".equals(v.type)) {
+            throw new SemanticException(
+                "TypeError: ++ variable must be INT, got '" + (v.type + "'"));
+        }
+
+        if (v.isFinal){
+            throw new SemanticException(
+                "TypeError: cannot change a final variable '" + v.name + "'");
+        }
+
+        currentType = v.type;
+    }
+
+    @Override
+    public void visit(UnaryMinusOneNode node) {
+        if (!(node.exprNode instanceof VarRefNode )){
+            throw new SemanticException("TypeError: cannot ++ to a non variable");
+        }
+        VarRefNode nodeExpr = (VarRefNode) node.exprNode;
+        SymbolTable.VarSymbol v = table.lookupVar(nodeExpr.name);
+
+        if (v == null) {
+            throw new SemanticException(
+                "ScopeError: undefined variable '" + nodeExpr.name + "'");
+        }
+
+        if (!"INT".equals(v.type)) {
+            throw new SemanticException(
+                "TypeError: ++ variable must be INT, got '" + (v.type + "'"));
+        }
+
+        if (v.isFinal){
+            throw new SemanticException(
+                "TypeError: cannot change a final variable '" + v.name + "'");
+        }
+
+        currentType = v.type;
+
     }
 
     @Override
@@ -206,20 +261,20 @@ public class SemanticAnalysis implements Visitor {
         if (node.varType != null) {
             if (!"INT".equals(node.varType.name)) {
                 throw new SemanticException(
-                        "TypeError: for loop variable must be INT, got '" + node.varType.name + "'");
+                    "TypeError: for loop variable must be INT, got '" + node.varType.name + "'");
             }
             table.declareVar(
-                    new SymbolTable.VarSymbol(node.varId.name, "INT", false, false));
+                new SymbolTable.VarSymbol(node.varId.name, "INT", false, false));
         } else {
             SymbolTable.VarSymbol v = table.lookupVar(node.varId.name);
             if (v == null) {
                 throw new SemanticException(
-                        "ScopeError: undefined variable '" + node.varId.name + "' in for loop");
+                    "ScopeError: undefined variable '" + node.varId.name + "' in for loop");
             }
             if (!"INT".equals(v.type)) {
                 throw new SemanticException(
-                        "TypeError: for loop variable '" + node.varId.name +
-                                "' must be INT, got '" + v.type + "'");
+                    "TypeError: for loop variable '" + node.varId.name +
+                        "' must be INT, got '" + v.type + "'");
             }
         }
 
@@ -238,23 +293,23 @@ public class SemanticAnalysis implements Visitor {
         if (node.expr == null) {
             if (expected != null) {
                 throw new SemanticException(
-                        "ReturnError: function '" + currentFunction.name +
-                                "' must return a value of type '" + expected + "'");
+                    "ReturnError: function '" + currentFunction.name +
+                        "' must return a value of type '" + expected + "'");
             }
         } else {
             String actual = inferType(node.expr);
             if (expected == null) {
                 throw new SemanticException(
-                        "ReturnError: void function '" +
-                                (currentFunction != null ? currentFunction.name : "?") +
-                                "' must not return a value");
+                    "ReturnError: void function '" +
+                        (currentFunction != null ? currentFunction.name : "?") +
+                        "' must not return a value");
             }
             if (!isAssignable(expected, currentFunction.returnIsArray, actual)) {
                 throw new SemanticException(
-                        "ReturnError: function '" + currentFunction.name +
-                                "' must return '" +
-                                (currentFunction.returnIsArray ? expected + "[]" : expected) +
-                                "', but got '" + actual + "'");
+                    "ReturnError: function '" + currentFunction.name +
+                        "' must return '" +
+                        (currentFunction.returnIsArray ? expected + "[]" : expected) +
+                        "', but got '" + actual + "'");
             }
         }
     }
@@ -273,8 +328,8 @@ public class SemanticAnalysis implements Visitor {
                 String rightType = inferType(node.right);
                 boolean leftArr  = leftType.endsWith("[]");
                 String  leftBase = leftArr
-                        ? leftType.substring(0, leftType.length() - 2)
-                        : leftType;
+                    ? leftType.substring(0, leftType.length() - 2)
+                    : leftType;
                 checkTypeError(leftBase, leftArr, rightType, "assignment");
                 currentType = leftType;
                 break;
@@ -291,8 +346,8 @@ public class SemanticAnalysis implements Visitor {
 
                 if (!isNumeric(l) || !isNumeric(r)) {
                     throw new SemanticException(
-                            "OperatorError: operator '" + node.op +
-                                    "' requires numeric operands, got '" + l + "' and '" + r + "'");
+                        "OperatorError: operator '" + node.op +
+                            "' requires numeric operands, got '" + l + "' and '" + r + "'");
                 }
                 currentType = (l.equals("FLOAT") || r.equals("FLOAT")) ? "FLOAT" : "INT";
                 break;
@@ -303,8 +358,8 @@ public class SemanticAnalysis implements Visitor {
                 String r = inferType(node.right);
                 if (!isNumeric(l) || !isNumeric(r)) {
                     throw new SemanticException(
-                            "OperatorError: operator '" + node.op +
-                                    "' requires numeric operands, got '" + l + "' and '" + r + "'");
+                        "OperatorError: operator '" + node.op +
+                            "' requires numeric operands, got '" + l + "' and '" + r + "'");
                 }
                 currentType = "BOOL";
                 break;
@@ -315,8 +370,8 @@ public class SemanticAnalysis implements Visitor {
                 String r = inferType(node.right);
                 if (!l.equals(r) && !(isNumeric(l) && isNumeric(r))) {
                     throw new SemanticException(
-                            "OperatorError: operator '" + node.op +
-                                    "' requires compatible types, got '" + l + "' and '" + r + "'");
+                        "OperatorError: operator '" + node.op +
+                            "' requires compatible types, got '" + l + "' and '" + r + "'");
                 }
                 currentType = "BOOL";
                 break;
@@ -327,8 +382,8 @@ public class SemanticAnalysis implements Visitor {
                 String r = inferType(node.right);
                 if (!"BOOL".equals(l) || !"BOOL".equals(r)) {
                     throw new SemanticException(
-                            "OperatorError: operator '" + node.op +
-                                    "' requires BOOL operands, got '" + l + "' and '" + r + "'");
+                        "OperatorError: operator '" + node.op +
+                            "' requires BOOL operands, got '" + l + "' and '" + r + "'");
                 }
                 currentType = "BOOL";
                 break;
@@ -336,7 +391,7 @@ public class SemanticAnalysis implements Visitor {
 
             default:
                 throw new SemanticException(
-                        "OperatorError: unknown operator '" + node.op + "'");
+                    "OperatorError: unknown operator '" + node.op + "'");
         }
     }
 
@@ -347,20 +402,20 @@ public class SemanticAnalysis implements Visitor {
             case "-":
                 if (!isNumeric(t)) {
                     throw new SemanticException(
-                            "OperatorError: unary '-' requires a numeric operand, got '" + t + "'");
+                        "OperatorError: unary '-' requires a numeric operand, got '" + t + "'");
                 }
                 currentType = t;
                 break;
             case "not":
                 if (!"BOOL".equals(t)) {
                     throw new SemanticException(
-                            "OperatorError: 'not' requires a BOOL operand, got '" + t + "'");
+                        "OperatorError: 'not' requires a BOOL operand, got '" + t + "'");
                 }
                 currentType = "BOOL";
                 break;
             default:
                 throw new SemanticException(
-                        "OperatorError: unknown unary operator '" + node.op + "'");
+                    "OperatorError: unknown unary operator '" + node.op + "'");
         }
     }
 
@@ -378,7 +433,7 @@ public class SemanticAnalysis implements Visitor {
         if (table.isCollection(node.name)) { currentType = node.name; return; }
 
         throw new SemanticException(
-                "ScopeError: undefined identifier '" + node.name + "'");
+            "ScopeError: undefined identifier '" + node.name + "'");
     }
 
     @Override
@@ -397,18 +452,18 @@ public class SemanticAnalysis implements Visitor {
         if (coll != null) {
             if (node.args.size() != coll.fields.size()) {
                 throw new SemanticException(
-                        "ArgumentError: constructor '" + funName + "' expects " +
-                                coll.fields.size() + " arguments, got " + node.args.size());
+                    "ArgumentError: constructor '" + funName + "' expects " +
+                        coll.fields.size() + " arguments, got " + node.args.size());
             }
             int i = 0;
             for (SymbolTable.VarSymbol field : coll.fields.values()) {
                 String argType = inferType(node.args.get(i));
                 if (!isAssignable(field.type, field.isArray, argType)) {
                     throw new SemanticException(
-                            "ArgumentError: constructor '" + funName +
-                                    "' field '" + field.name +
-                                    "' expects '" + field.fullType() +
-                                    "', got '" + argType + "'");
+                        "ArgumentError: constructor '" + funName +
+                            "' field '" + field.name +
+                            "' expects '" + field.fullType() +
+                            "', got '" + argType + "'");
                 }
                 i++;
             }
@@ -419,13 +474,13 @@ public class SemanticAnalysis implements Visitor {
         SymbolTable.FunSymbol fun = table.lookupFunction(funName);
         if (fun == null) {
             throw new SemanticException(
-                    "ScopeError: undefined function '" + funName + "'");
+                "ScopeError: undefined function '" + funName + "'");
         }
 
         if (node.args.size() != fun.params.size()) {
             throw new SemanticException(
-                    "ArgumentError: function '" + funName + "' expects " +
-                            fun.params.size() + " argument(s), got " + node.args.size());
+                "ArgumentError: function '" + funName + "' expects " +
+                    fun.params.size() + " argument(s), got " + node.args.size());
         }
 
         for (int i = 0; i < node.args.size(); i++) {
@@ -434,17 +489,17 @@ public class SemanticAnalysis implements Visitor {
                 SymbolTable.VarSymbol expected = fun.params.get(i);
                 if (!isAssignable(expected.type, expected.isArray, argType)) {
                     throw new SemanticException(
-                            "ArgumentError: function '" + funName +
-                                    "' parameter " + (i + 1) +
-                                    " ('" + expected.name + "') expects '" + expected.fullType() +
-                                    "', got '" + argType + "'");
+                        "ArgumentError: function '" + funName +
+                            "' parameter " + (i + 1) +
+                            " ('" + expected.name + "') expects '" + expected.fullType() +
+                            "', got '" + argType + "'");
                 }
             }
         }
 
         currentType = fun.returnType != null
-                ? (fun.returnIsArray ? fun.returnType + "[]" : fun.returnType)
-                : "void";
+            ? (fun.returnIsArray ? fun.returnType + "[]" : fun.returnType)
+            : "void";
     }
 
     @Override
@@ -452,12 +507,12 @@ public class SemanticAnalysis implements Visitor {
         String baseType = inferType(node.base);
         if (!baseType.endsWith("[]")) {
             throw new SemanticException(
-                    "TypeError: '[]' applied to non-array type '" + baseType + "'");
+                "TypeError: '[]' applied to non-array type '" + baseType + "'");
         }
         String indexType = inferType(node.index);
         if (!"INT".equals(indexType)) {
             throw new SemanticException(
-                    "TypeError: array index must be INT, got '" + indexType + "'");
+                "TypeError: array index must be INT, got '" + indexType + "'");
         }
         currentType = baseType.substring(0, baseType.length() - 2);
     }
@@ -468,14 +523,14 @@ public class SemanticAnalysis implements Visitor {
         SymbolTable.CollSymbol coll = table.lookupCollection(baseType);
         if (coll == null) {
             throw new SemanticException(
-                    "TypeError: '." + node.field +
-                            "' applied to non-collection type '" + baseType + "'");
+                "TypeError: '." + node.field +
+                    "' applied to non-collection type '" + baseType + "'");
         }
         SymbolTable.VarSymbol field = coll.fields.get(node.field);
         if (field == null) {
             throw new SemanticException(
-                    "ScopeError: unknown field '" + node.field +
-                            "' in collection '" + baseType + "'");
+                "ScopeError: unknown field '" + node.field +
+                    "' in collection '" + baseType + "'");
         }
         currentType = field.fullType();
     }
@@ -485,11 +540,11 @@ public class SemanticAnalysis implements Visitor {
         String sizeType = inferType(node.size);
         if (!"INT".equals(sizeType)) {
             throw new SemanticException(
-                    "TypeError: array size must be INT, got '" + sizeType + "'");
+                "TypeError: array size must be INT, got '" + sizeType + "'");
         }
         if (!isPrimitive(node.elementType) && !table.isCollection(node.elementType)) {
             throw new SemanticException(
-                    "TypeError: unknown element type '" + node.elementType + "'");
+                "TypeError: unknown element type '" + node.elementType + "'");
         }
         currentType = node.elementType + "[]";
     }
@@ -514,7 +569,7 @@ public class SemanticAnalysis implements Visitor {
 
     private boolean isPrimitive(String type) {
         return "INT".equals(type) || "FLOAT".equals(type)
-                || "BOOL".equals(type) || "STRING".equals(type);
+            || "BOOL".equals(type) || "STRING".equals(type);
     }
 
     private boolean isNumeric(String type) {
@@ -524,17 +579,17 @@ public class SemanticAnalysis implements Visitor {
     private void requireNumeric(String type, String context) {
         if (!isNumeric(type)) {
             throw new SemanticException(
-                    "TypeError: " + context + " must be numeric, got '" + type + "'");
+                "TypeError: " + context + " must be numeric, got '" + type + "'");
         }
     }
 
     private void checkTypeError(String expected, boolean expectedArr,
-                                String actual, String context) {
+        String actual, String context) {
         if (!isAssignable(expected, expectedArr, actual)) {
             String expectedFull = expectedArr ? expected + "[]" : expected;
             throw new SemanticException(
-                    "TypeError: cannot assign '" + actual +
-                            "' to '" + expectedFull + "' in " + context);
+                "TypeError: cannot assign '" + actual +
+                    "' to '" + expectedFull + "' in " + context);
         }
     }
 
@@ -550,13 +605,13 @@ public class SemanticAnalysis implements Visitor {
             SymbolTable.VarSymbol sym = table.lookupVar(((VarRefNode) expr).name);
             if (sym != null && sym.isFinal) {
                 throw new SemanticException(
-                        "TypeError: cannot assign to final variable '" + sym.name + "'");
+                    "TypeError: cannot assign to final variable '" + sym.name + "'");
             }
         } else if (expr instanceof ArrayAccessNode || expr instanceof FieldAccessNode) {
             // OK
         } else {
             throw new SemanticException(
-                    "TypeError: left side of '=' is not assignable");
+                "TypeError: left side of '=' is not assignable");
         }
     }
 }

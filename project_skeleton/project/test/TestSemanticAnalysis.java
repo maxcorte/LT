@@ -44,6 +44,79 @@ public class TestSemanticAnalysis {
 
     // TypeError
 
+    @Test
+    public void  testTypeError_PLUS_EQFinal(){
+        String src =
+            "def main() {\n" +
+                "  final INT  x = 3;\n" +
+                "   x += 2;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+    @Test
+    public void  testTypeError_MINUS_EQFinal(){
+        String src =
+            "def main() {\n" +
+                "  final INT  x = 3;\n" +
+                "   x -= 2;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+    @Test
+    public void  testTypeErrorUnaryMinusToString(){
+        String src =
+            "def main() {\n" +
+                "  STRING x = \"Hello\";\n" +
+                "   x --;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+    @Test
+    public void  testTypeErrorUnaryPlusToString(){
+        String src =
+            "def main() {\n" +
+                "  STRING x = \"Hello\";\n" +
+                "   x ++;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+    @Test
+    public void  testTypeErrorUnaryMinusFinal(){
+        String src =
+            "def main() {\n" +
+                "  final INT x = 2;\n" +
+                "   x --;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+    @Test
+    public void  testTypeErrorUnaryPlusFinal(){
+        String src =
+            "def main() {\n" +
+                "  final INT x = 2;\n" +
+                "   x ++;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "TypeError");
+    }
+
+
 
     @Test
     public void testTypeError_assignStringToInt() {
@@ -192,6 +265,8 @@ public class TestSemanticAnalysis {
         SemanticException e = expectError(src);
         assertKeyword(e, "OperatorError");
     }
+
+
 
     @Test
     public void testOperatorError_logicalOnInt() {
@@ -413,6 +488,50 @@ public class TestSemanticAnalysis {
     // ScopeError
 
     @Test
+    public void  testScopeError_PlusEQ(){
+        String src =
+            "def main() {\n" +
+                "   x += 2;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "ScopeError");
+    }
+
+    @Test
+    public void  testScopeError_UnaryPlusOne(){
+        String src =
+            "def main() {\n" +
+                "   x ++;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "ScopeError");
+    }
+
+    @Test
+    public void  testScopeError_UnaryMinusOne(){
+        String src =
+            "def main() {\n" +
+                "   x ++;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "ScopeError");
+    }
+
+    @Test
+    public void  testScopeError_UnaryMinusOneToString(){
+        String src =
+            "def main() {\n" +
+                "   x -= 2;\n" +
+                "}\n";
+
+        SemanticException e = expectError(src);
+        assertKeyword(e, "ScopeError");
+    }
+
+    @Test
     public void testScopeError_variableOutOfScope() {
         // misdirection est locale a square, pas visible dans main -> ScopeError
         String src =
@@ -453,6 +572,9 @@ public class TestSemanticAnalysis {
         assertKeyword(e, "ScopeError");
     }
 
+
+
+
     @Test
     public void testScopeError_noError_shadowingAllowed() {
         // Un parametre peut avoir le meme nom qu'une variable globale
@@ -480,6 +602,7 @@ public class TestSemanticAnalysis {
 
         analyze(src);
     }
+
 
     // Cas valides (aucune exception attendue)
 
@@ -515,6 +638,49 @@ public class TestSemanticAnalysis {
                         "    INT x = i;\n" +
                         "  }\n" +
                         "}\n";
+
+        analyze(src);
+    }
+
+    @Test
+    public void testValid_forLoopPLUS_ONE() {
+        String src =
+            "def main() {\n" +
+                "  INT i;\n" +
+                "  for (i; 1 -> 10; i ++) {\n" +
+                "    INT x = i;\n" +
+                "  }\n" +
+                "}\n";
+
+        analyze(src);
+    }
+
+
+
+    @Test
+    public void testValid_arithmetic() {
+        String src =
+            "def main() {\n" +
+                "  INT i=3;\n" +
+                "  i+=4; \n" +
+                "  i*=i; \n" +
+                "  i/=i; \n" +
+                "  i-=i; \n"
+                + "i++; \n"
+                + "i--; \n" +
+
+                "}\n";
+
+        analyze(src);
+    }
+
+    @Test
+    public void testValid_arithmetic_string() {
+        String src =
+            "def main() {\n" +
+                "  STRING s = \"hello\";\n" +
+                "   s += \"student\";\n" +
+                "}\n";
 
         analyze(src);
     }

@@ -1,6 +1,11 @@
 import compiler.Lexer.Lexer;
+import compiler.Parser.ExprStmtNode;
 import compiler.Parser.Parser;
 import compiler.Parser.ProgramNode;
+import compiler.Parser.StmtNode;
+import compiler.Parser.UnaryMinusOneNode;
+import compiler.Parser.UnaryOpNode;
+import compiler.Parser.UnaryPlusOneNode;
 import compiler.Parser.VarDeclNode;
 import compiler.Parser.IntLiteralNode;
 import compiler.Parser.FloatLiteralNode;
@@ -12,6 +17,7 @@ import compiler.Parser.FunDefNode;
 import compiler.Parser.ParamNode;
 import compiler.Parser.ReturnNode;
 import compiler.Parser.BinaryOpNode;
+import compiler.Parser.VarDeclStmtNode;
 import compiler.Parser.VarRefNode;
 import compiler.Parser.BlockNode;
 import compiler.Parser.ForNode;
@@ -220,5 +226,121 @@ public class TestParser {
         assertEquals(1, ((IntLiteralNode) forNode.start).value);
         assertEquals(100, ((IntLiteralNode) forNode.end).value);
     }
+
+    @Test
+    public void testFunCopyPointsWithForUnaryPlusOne(){
+        String src =
+            "def main() {\n" +
+                "  INT i;\n" +
+                "  for (i; 1 -> 100; i++) {\n" +
+                "  }\n" +
+                "}\n";
+
+        ProgramNode ast = parse(src);
+
+        assertEquals(1, ast.topLevels.size());
+        assertTrue(ast.topLevels.get(0) instanceof FunDefNode);
+
+        FunDefNode main = (FunDefNode) ast.topLevels.get(0);
+        assertEquals("main", main.name);
+
+        // Dans le bloc de main : déclaration INT i; puis for(...)
+        assertEquals(2, main.body.statements.size());
+        assertTrue(main.body.statements.get(1) instanceof ForNode);
+
+        ForNode forNode = (ForNode) main.body.statements.get(1);
+        assertEquals("i", forNode.varId.name);
+        assertTrue(forNode.start instanceof IntLiteralNode);
+        assertTrue(forNode.end   instanceof IntLiteralNode);
+        assertTrue(forNode.step  instanceof UnaryPlusOneNode);
+        assertEquals(1, ((IntLiteralNode) forNode.start).value);
+        assertEquals(100, ((IntLiteralNode) forNode.end).value);
+    }
+    @Test
+    public void testMathShortened(){
+        String src =
+            "def main() {\n" +
+                "  INT i=3;\n" +
+                "  i+=4; \n" +
+                "  i*=i; \n" +
+                "  i/=i; \n" +
+                "  i-=i; \n"
+                + "i++; \n"
+                + "i--; \n" +
+
+                "}\n";
+
+        ProgramNode ast = parse(src);
+
+        assertEquals(1, ast.topLevels.size());
+        assertTrue(ast.topLevels.get(0) instanceof FunDefNode);
+
+        FunDefNode main = (FunDefNode) ast.topLevels.get(0);
+        assertEquals("main", main.name);
+
+        assertEquals(7, main.body.statements.size());
+
+        // INT i=3
+        assertTrue(main.body.statements.get(0) instanceof VarDeclStmtNode);
+        VarDeclStmtNode varDeclStmtNode = (VarDeclStmtNode) main.body.statements.get(0);
+        assertEquals("i",varDeclStmtNode.decl.id.name);
+        assertEquals(3,((IntLiteralNode)varDeclStmtNode.decl.init).value);
+
+        // i+=4  --> i = i +4
+        assertTrue(main.body.statements.get(1) instanceof ExprStmtNode);
+        ExprStmtNode exprStmtNode = (ExprStmtNode) main.body.statements.get(1);
+        assertEquals("=", ((BinaryOpNode) exprStmtNode.expr).op);
+        assertEquals("i",((VarRefNode)((BinaryOpNode) exprStmtNode.expr).left).name);
+        assertEquals("+",((BinaryOpNode)((BinaryOpNode) exprStmtNode.expr).right).op);
+
+
+        // i*=i
+        assertTrue(main.body.statements.get(2) instanceof ExprStmtNode);
+        ExprStmtNode exprStmtNode2 = (ExprStmtNode) main.body.statements.get(2);
+        assertEquals("=", ((BinaryOpNode) exprStmtNode2.expr).op);
+        assertEquals("i",((VarRefNode)((BinaryOpNode) exprStmtNode2.expr).left).name);
+        assertEquals("*",((BinaryOpNode)((BinaryOpNode) exprStmtNode2.expr).right).op);
+
+        // i/=i
+        assertTrue(main.body.statements.get(3) instanceof ExprStmtNode);
+        ExprStmtNode exprStmtNode3 = (ExprStmtNode) main.body.statements.get(3);
+        assertEquals("=", ((BinaryOpNode) exprStmtNode3.expr).op);
+        assertEquals("i",((VarRefNode)((BinaryOpNode) exprStmtNode3.expr).left).name);
+        assertEquals("/",((BinaryOpNode)((BinaryOpNode) exprStmtNode3.expr).right).op);
+
+        // i-=i
+        assertTrue(main.body.statements.get(4) instanceof ExprStmtNode);
+        ExprStmtNode exprStmtNode4 = (ExprStmtNode) main.body.statements.get(4);
+        assertEquals("=", ((BinaryOpNode) exprStmtNode4.expr).op);
+        assertEquals("i",((VarRefNode)((BinaryOpNode) exprStmtNode4.expr).left).name);
+        assertEquals("-",((BinaryOpNode)((BinaryOpNode) exprStmtNode4.expr).right).op);
+
+        //i++
+        assertTrue(main.body.statements.get(5) instanceof ExprStmtNode);
+        ExprStmtNode exprStmtNode5 = (ExprStmtNode) main.body.statements.get(5);
+
+        assertTrue(exprStmtNode5.expr instanceof UnaryPlusOneNode);
+        UnaryPlusOneNode unaryPlusOneNode =(UnaryPlusOneNode) exprStmtNode5.expr;
+
+        assertTrue(unaryPlusOneNode.exprNode instanceof VarRefNode);
+        VarRefNode varRefNode = (VarRefNode) unaryPlusOneNode.exprNode;
+
+        assertEquals("i",varRefNode.name);
+
+        //i--
+        assertTrue(main.body.statements.get(6) instanceof ExprStmtNode);
+        ExprStmtNode exprStmtNode6 = (ExprStmtNode) main.body.statements.get(6);
+
+        assertTrue(exprStmtNode6.expr instanceof UnaryMinusOneNode);
+        UnaryMinusOneNode unaryMinusOneNode =(UnaryMinusOneNode) exprStmtNode6.expr;
+
+        assertTrue(unaryMinusOneNode.exprNode instanceof VarRefNode);
+        VarRefNode varRefNode2 = (VarRefNode) unaryPlusOneNode.exprNode;
+
+        assertEquals("i",varRefNode2.name);
+
+    }
+
+
 }
 

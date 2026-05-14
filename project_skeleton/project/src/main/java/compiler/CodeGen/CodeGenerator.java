@@ -1,5 +1,6 @@
 package compiler.CodeGen;
 
+import compiler.CodeGen.Signatures.VarInfo;
 import compiler.Parser.*;
 import compiler.SemanticAnalysis.SymbolTable;
 import compiler.SemanticAnalysis.Visitor;
@@ -243,6 +244,22 @@ public class CodeGenerator implements Visitor {
         node.body.accept(this);
         mv.visitJumpInsn(Opcodes.GOTO, startLabel);
         mv.visitLabel(endLabel);
+    }
+
+    @Override
+    public void visit(UnaryPlusOneNode node) {
+
+        VarInfo varInfo = scope.lookup(((VarRefNode) node.exprNode).name);
+        mv.visitIincInsn(varInfo.slot,1);
+
+    }
+
+    @Override
+    public void visit(UnaryMinusOneNode node) {
+
+        VarInfo varInfo = scope.lookup(((VarRefNode) node.exprNode).name);
+        mv.visitIincInsn(varInfo.slot,-1);
+
     }
 
     @Override

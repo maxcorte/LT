@@ -23,7 +23,9 @@ import compiler.Parser.StmtNode;
 import compiler.Parser.StringLiteralNode;
 import compiler.Parser.TopLevelNode;
 import compiler.Parser.TypeNode;
+import compiler.Parser.UnaryMinusOneNode;
 import compiler.Parser.UnaryOpNode;
+import compiler.Parser.UnaryPlusOneNode;
 import compiler.Parser.VarDeclNode;
 import compiler.Parser.VarDeclStmtNode;
 import compiler.Parser.VarRefNode;
@@ -57,5 +59,7 @@ public interface Visitor {
   public void visit(VarDeclStmtNode varDeclStmtNode);
   public void visit(VarRefNode varRefNode);
   public void visit(WhileNode whileNode);
+  void visit(UnaryPlusOneNode unaryPlusOneNode);
 
+  void visit(UnaryMinusOneNode unaryMinusOneNode);
 }
