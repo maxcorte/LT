@@ -214,7 +214,7 @@ public class SemanticAnalysis implements Visitor {
                 "ScopeError: undefined variable '" + nodeExpr.name + "'");
         }
 
-        if (!"INT".equals(v.type)) {
+        if (!"INT".equals(v.type) && !"FLOAT".equals(v.type)) {
             throw new SemanticException(
                 "TypeError: ++ variable must be INT, got '" + (v.type + "'"));
         }
@@ -240,9 +240,9 @@ public class SemanticAnalysis implements Visitor {
                 "ScopeError: undefined variable '" + nodeExpr.name + "'");
         }
 
-        if (!"INT".equals(v.type)) {
+        if (!"INT".equals(v.type) && !"FLOAT".equals(v.type)) {
             throw new SemanticException(
-                "TypeError: ++ variable must be INT, got '" + (v.type + "'"));
+                "TypeError: ++ variable must be INT or FLOAT, got '" + (v.type + "'"));
         }
 
         if (v.isFinal){
