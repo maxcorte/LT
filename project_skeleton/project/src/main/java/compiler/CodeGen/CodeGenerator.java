@@ -248,18 +248,52 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(UnaryPlusOneNode node) {
-
-        VarInfo varInfo = scope.lookup(((VarRefNode) node.exprNode).name);
-        mv.visitIincInsn(varInfo.slot,1);
-
+        incOrDec(node.exprNode, +1);
     }
 
     @Override
     public void visit(UnaryMinusOneNode node) {
+        incOrDec(node.exprNode, -1);
+    }
 
-        VarInfo varInfo = scope.lookup(((VarRefNode) node.exprNode).name);
-        mv.visitIincInsn(varInfo.slot,-1);
+    private void incOrDec(ExprNode target, int delta) {
+        if (!(target instanceof VarRefNode)) {
+            throw new RuntimeException(
+                    "CodeGen: ++/-- requires a simple variable reference");
+        }
+        String name = ((VarRefNode) target).name;
 
+        // 1. Try local first
+        VarInfo info = scope.lookup(name);
+        if (info != null) {
+            if (TypeUtils.isFloat(info.type)) {
+                mv.visitVarInsn(Opcodes.FLOAD, info.slot);
+                mv.visitInsn(Opcodes.FCONST_1);
+                mv.visitInsn(delta > 0 ? Opcodes.FADD : Opcodes.FSUB);
+                mv.visitVarInsn(Opcodes.FSTORE, info.slot);
+            } else {
+                // INT: use IINC (compact, supports negative delta)
+                mv.visitIincInsn(info.slot, delta);
+            }
+            return;
+        }
+
+        // 2. Fall back to global
+        Signatures.GlobalInfo g = globals.get(name);
+        if (g == null) {
+            throw new RuntimeException(
+                    "CodeGen: variable '" + name + "' not declared");
+        }
+        String desc = TypeUtils.descForFullType(g.type);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, mainClassName, name, desc);
+        if (TypeUtils.isFloat(g.type)) {
+            mv.visitInsn(Opcodes.FCONST_1);
+            mv.visitInsn(delta > 0 ? Opcodes.FADD : Opcodes.FSUB);
+        } else {
+            mv.visitInsn(Opcodes.ICONST_1);
+            mv.visitInsn(delta > 0 ? Opcodes.IADD : Opcodes.ISUB);
+        }
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, mainClassName, name, desc);
     }
 
     @Override
@@ -331,17 +365,21 @@ public class CodeGenerator implements Visitor {
         }
 
         node.body.accept(this);
-
-        // Step: i := step expr
-        node.step.accept(this);
-        if (varIsFloat && TypeUtils.isInt(node.step.inferredType)) {
-            mv.visitInsn(Opcodes.I2F);
-        }
-        if (isGlobal) {
-            mv.visitFieldInsn(Opcodes.PUTSTATIC, mainClassName, loopVarName,
-                    TypeUtils.descForFullType(loopVarType));
+        boolean stepIsSugar = node.step instanceof UnaryPlusOneNode
+                || node.step instanceof UnaryMinusOneNode;
+        if (stepIsSugar) {
+            node.step.accept(this);
         } else {
-            exprEmit.storeLocal(loopVar.type, loopVar.slot);
+            node.step.accept(this);
+            if (varIsFloat && TypeUtils.isInt(node.step.inferredType)) {
+                mv.visitInsn(Opcodes.I2F);
+            }
+            if (isGlobal) {
+                mv.visitFieldInsn(Opcodes.PUTSTATIC, mainClassName, loopVarName,
+                        TypeUtils.descForFullType(loopVarType));
+            } else {
+                exprEmit.storeLocal(loopVar.type, loopVar.slot);
+            }
         }
 
         mv.visitJumpInsn(Opcodes.GOTO, startLabel);

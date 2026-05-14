@@ -1,7 +1,58 @@
+INT counter = 0;
+
 def main() {
-    for (INT j; 0 -> 3; j+1) {
-        print(j);
-        print(" ");
+
+    println("[1] inc/dec on INT local");
+    INT i = 5;
+    i++;          println(i);    # 6
+    i--;          println(i);    # 5
+    i++;
+    i++;
+    i++;          println(i);    # 8
+
+    println("[2] compound on INT local");
+    INT x = 10;
+    x += 5;       println(x);    # 15
+    x -= 3;       println(x);    # 12
+    x *= 2;       println(x);    # 24
+    x /= 5;       println(x);    # 4
+
+    println("[3] compound on FLOAT with coercion");
+    FLOAT f = 1.5;
+    f += 2;       println(f);    # 3.5
+    f *= 2;       println(f);    # 7.0
+    f -= 1.5;     println(f);    # 5.5
+
+    println("[4] += on STRING (concat)");
+    STRING s = "Hello";
+    s += " world";
+    println(s);                  # Hello world
+    s += "!";
+    println(s);                  # Hello world!
+
+    println("[5] sugar on global variable");
+    counter++;
+    counter++;
+    counter++;
+    println(counter);            # 3
+    counter += 7;
+    println(counter);            # 10
+
+    println("[6] sugar in a while loop");
+    INT k = 0;
+    INT sum = 0;
+    while (k < 5) {
+        sum += k;
+        k++;
     }
-    println("");
+    println(sum);                # 10
+
+    println("[7] ++ as for-loop step");
+    INT total = 0;
+    for (INT m; 1 -> 5; m++) {
+        total += m;
+    }
+    println(total);              # 1+2+3+4 = 10 (exclusive upper bound)
+
+    println("=== DONE ===");
 }
